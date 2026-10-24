@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#171329">
+<title>Potion Crafting World ✨</title>
+<style>
+:root {
+  --bg:#171329; --panel:#24203d; --panel2:#302849;
+  --text:#f9f3ff; --muted:#bcb2d5; --pink:#ff9ed8;
+  --purple:#b99aff; --gold:#ffd782; --green:#9bf0c0;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:radial-gradient(ellipse at top,#39305b 0,#171329 48%,#100e1e 100%);
+ color:var(--text);font-family:system-ui,-apple-system,sans-serif;
+ min-height:100vh;
+}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.topbar{position:sticky;top:0;z-index:5;background:#171329ed;
+ backdrop-filter:blur(15px);border-bottom:1px solid #ffffff16;padding:12px 4%}
+.topinner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;
+ align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:900;font-size:clamp(17px,4vw,25px);letter-spacing:-.6px}
+.logo span{color:var(--pink)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:var(--panel);border:1px solid #ffffff12;border-radius:14px;
+ padding:7px 11px;font-size:13px;font-weight:800}
+.wrap{max-width:1200px;margin:auto;padding:20px 4% 40px}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:15px;
+ padding:22px 0 20px}
+.eyebrow{color:var(--pink);font-size:11px;font-weight:900;letter-spacing:2px}
+h1{font-size:clamp(27px,5vw,43px);line-height:1.08;margin:8px 0}
+p{color:var(--muted);line-height:1.6;margin:8px 0}
+.hero p{max-width:490px}
+.mage{font-size:clamp(65px,12vw,115px);filter:drop-shadow(0 10px 20px #b99aff50);
+ animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-9px) rotate(3deg)}}
+.panel{background:linear-gradient(145deg,#292341f5,#211c35f5);
+ border:1px solid #ffffff14;border-radius:22px;padding:17px;
+ box-shadow:0 12px 35px #08061640;min-width:0}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+ gap:16px;align-items:start}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+h2{font-size:18px;margin:0}
+.small{font-size:12px;color:var(--muted)}
+.ingredients{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.ingredient{position:relative;min-height:110px;border:1px solid #ffffff16;
+ border-radius:15px;background:#ffffff06;color:var(--text);padding:11px 5px;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.ingredient .emoji{font-size:33px}
+.ingredient b{font-size:12px}
+.ingredient small{font-size:11px;color:var(--muted)}
+.ingredient.selected{background:#b99aff20;border:2px solid var(--purple);
+ box-shadow:0 0 20px #b99aff22}
+.ingredient:disabled{opacity:.38;cursor:not-allowed}
+.ingredient .tick{position:absolute;right:7px;top:5px;color:var(--green)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:850;
+ background:linear-gradient(135deg,#d2b5ff,#a88aff);color:#211735;
+ transition:transform .15s,filter .15s}
+.btn:active{transform:scale(.96)}
+.btn.secondary{background:#ffffff0c;color:var(--text);border:1px solid #ffffff20}
+.btn.gold{background:linear-gradient(135deg,#ffe7a0,#eab74d);color:#37260c}
+.btn.green{background:linear-gradient(135deg,#b5f8ce,#66dca4);color:#153b2b}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.cauldron-area{display:flex;flex-direction:column;align-items:center;text-align:center;
+ padding:12px 5px 16px}
+.cauldron{width:180px;height:145px;position:relative;display:grid;place-items:center;
+ margin:7px auto 14px}
+.bowl{font-size:115px;filter:drop-shadow(0 8px 13px #0008);z-index:1}
+.liquid{position:absolute;top:37px;width:89px;height:28px;border-radius:50%;
+ background:var(--liquid,#b99aff);box-shadow:0 0 22px var(--liquid,#b99aff);
+ opacity:.8;z-index:0;transition:background .5s}
+.cauldron.brewing .bowl{animation:bubble .35s infinite alternate}
+.cauldron.brewing .liquid{animation:glow .4s infinite alternate}
+@keyframes bubble{to{transform:rotate(6deg) translateY(-5px)}}
+@keyframes glow{to{transform:scale(1.14);filter:brightness(1.6)}}
+.result{width:100%;background:#ffffff08;border:1px dashed #ffffff28;
+ border-radius:16px;padding:15px;min-height:125px}
+.result-icon{font-size:40px}
+.result h3{margin:5px 0}
+.result p{font-size:13px}
+.recipe-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.recipe{display:flex;align-items:center;gap:9px;background:#ffffff07;
+ border:1px solid #ffffff10;border-radius:13px;padding:10px;min-width:0}
+.recipe .emoji{font-size:26px}
+.recipe b{font-size:12px;display:block}
+.recipe small{font-size:10px;color:var(--muted)}
+.recipe.locked{opacity:.5}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.shop-item,.quest{display:flex;align-items:center;gap:10px;padding:10px 0;
+ border-bottom:1px solid #ffffff10}
+.shop-item:last-child,.quest:last-child{border-bottom:0}
+.item-icon{font-size:28px}
+.item-info{flex:1;min-width:0}
+.item-info b{font-size:13px;display:block}
+.item-info small{font-size:11px;color:var(--muted)}
+.shop-item .btn,.quest .btn{padding:8px 10px;font-size:12px}
+.bar{height:8px;border-radius:10px;background:#ffffff12;overflow:hidden;margin-top:9px}
+.bar div{height:100%;background:linear-gradient(90deg,#b99aff,#ff9ed8);
+ width:0%;transition:width .4s}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{border-radius:30px;background:#ffffff0b;border:1px solid #ffffff15;
+ padding:7px 10px;font-size:11px;color:var(--muted)}
+.badge.unlocked{color:var(--gold);border-color:#ffd78260;background:#ffd78212}
+.notice{position:fixed;bottom:18px;left:50%;transform:translate(-50%,20px);
+ opacity:0;pointer-events:none;background:#f6edff;color:#241733;border-radius:14px;
+ padding:12px 17px;font-weight:800;font-size:13px;z-index:10;
+ width:max-content;max-width:90%;text-align:center;transition:.25s;box-shadow:0 8px 30px #0005}
+.notice.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:#8e85aa;font-size:12px;padding:24px 0 5px}
+@media(max-width:700px){
+ .wrap{padding:12px 12px 30px}.topbar{padding:10px 12px}
+ .grid,.bottom-grid{grid-template-columns:1fr}.hero{padding-top:14px}
+ .hero p{font-size:13px}.panel{padding:14px;border-radius:18px}
+ .ingredients{gap:7px}.ingredient{min-height:102px}
+ .recipe-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stat{font-size:12px;padding:6px 8px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="topinner">
+  <div class="logo">🧪 Potion <span>Crafting</span> World</div>
+  <div class="stats">
+   <div class="stat">🪙 <span id="coins">60</span></div>
+   <div class="stat">⭐ Lv. <span id="level">1</span></div>
+   <div class="stat">✨ <span id="xp">0</span> XP</div>
+  </div>
+ </div>
+</header>
+
+<main class="wrap">
+ <section class="hero">
+  <div>
+   <div class="eyebrow">✦ YOUR MAGICAL ADVENTURE ✦</div>
+   <h1>Welcome, Little<br>Alchemist! <span>🌙</span></h1>
+   <p>Collect enchanted ingredients, brew extraordinary potions and uncover the secrets of your magical world.</p>
+   <div class="badges">
+    <span class="badge">🌿 Gather</span><span class="badge">🧪 Brew</span>
+    <span class="badge">💰 Trade</span><span class="badge">📖 Discover</span>
+   </div>
+  </div>
+  <div class="mage" aria-label="Cute wizard">🧙🏻‍♀️</div>
+ </section>
+
+ <div class="grid">
+  <section class="panel">
+   <div class="section-title">
+    <h2>🌿 Ingredient Garden</h2><span class="small" id="selectedCount">0 selected</span>
+   </div>
+   <p class="small">Choose 2 or 3 ingredients to create a potion.</p>
+   <div class="ingredients" id="ingredients"></div>
+   <div class="actions">
+    <button class="btn" id="brewBtn" onclick="brew()">🪄 Brew Potion</button>
+    <button class="btn secondary" onclick="clearSelection()">↺ Clear</button>
+   </div>
+   <p class="small" style="margin-top:12px">💡 Hint: Different combinations create different magical results!</p>
+  </section>
+
+  <section class="panel">
+   <div class="section-title"><h2>🫧 Magic Cauldron</h2><span class="small">Alchemy Lab</span></div>
+   <div class="cauldron-area">
+    <div class="cauldron" id="cauldron">
+     <div class="liquid" id="liquid"></div>
+     <div class="bowl">⚗️</div>
+    </div>
+    <div class="result" id="result" aria-live="polite">
+     <div class="result-icon">✨</div>
+     <h3>Ready to Brew?</h3>
+     <p>Select your ingredients and discover your first potion!</p>
+    </div>
+    <div class="actions" style="justify-content:center">
+     <button class="btn gold" id="sellBtn" onclick="sellPotion()" disabled>🪙 Sell Potion</button>
+     <button class="btn secondary" id="keepBtn" onclick="keepPotion()" disabled>💜 Keep It</button>
+    </div>
+   </div>
+  </section>
+ </div>
+
+ <div class="bottom-grid">
+  <section class="panel">
+   <div class="section-title"><h2>📖 Recipe Grimoire</h2><span class="small" id="recipeCount">0 discovered</span></div>
+   <div class="recipe-list" id="recipes"></div>
+  </section>
+  <section class="panel">
+   <div class="section-title"><h2>🛍️ Alchemist's Market</h2><span class="small">Buy supplies</span></div>
+   <p class="small">Restock your ingredients using coins.</p>
+   <div id="shop"></div>
+  </section>
+  <section class="panel">
+   <div class="section-title"><h2>📜 Daily Challenges</h2><span class="small">Earn rewards</span></div>
+   <div id="quests"></div>
+  </section>
+  <section class="panel">
+   <div class="section-title"><h2>🌟 Alchemist Progress</h2><span class="small" id="levelLabel">Apprentice</span></div>
+   <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+    <span id="progressLabel">Level 1</span><span id="progressXP">0 / 50 XP</span>
+   </div>
+   <div class="bar"><div id="xpBar"></div></div>
+   <div class="badges" id="achievements"></div>
+   <div class="actions">
+    <button class="btn secondary" onclick="toggleSound()" id="soundBtn">🔊 Sound: Off</button>
+    <button class="btn secondary" onclick="resetGame()">🗑️ Reset Game</button>
+   </div>
+   <p class="small">Your progress is saved in this browser on this device.</p>
+  </section>
+ </div>
+ <footer>Made with ✨ magic & imagination · Potion Crafting World</footer>
+</main>
+<div class="notice" id="notice" role="status"></div>
+
+<script>
+const ITEMS = [
+ {id:"moon",name:"Moonflower",emoji:"🌙",cost:8,color:"#b99aff"},
+ {id:"berry",name:"Star Berry",emoji:"🫐",cost:7,color:"#8b8bff"},
+ {id:"mushroom",name:"Glow Mushroom",emoji:"🍄",cost:6,color:"#ff9eae"},
+ {id:"crystal",name:"Magic Crystal",emoji:"💎",cost:12,color:"#8ceaff"},
+ {id:"leaf",name:"Fairy Leaf",emoji:"🍃",cost:5,color:"#9bf0c0"},
+ {id:"honey",name:"Golden Honey",emoji:"🍯",cost:9,color:"#ffd782"},
+ {id:"feather",name:"Phoenix Feather",emoji:"🪶",cost:14,color:"#ffb27d"},
+ {id:"dust",name:"Dream Dust",emoji:"✨",cost:10,color:"#ff9ed8"},
+ {id:"shell",name:"Mermaid Shell",emoji:"🐚",cost:11,color:"#8ee8e0"}
+];
+
+const RECIPES = [
+ {ids:["moon","berry"],name:"Starlight Elixir",emoji:"🌌",color:"#9d8bff",price:32,desc:"A sparkling sip of the midnight sky.",rarity:"Rare"},
+ {ids:["mushroom","leaf"],name:"Forest Remedy",emoji:"🌿",color:"#8fe3a8",price:24,desc:"A soothing potion from enchanted forests.",rarity:"Common"},
+ {ids:["crystal","dust"],name:"Dreamcatcher Brew",emoji:"💫",color:"#df9cff",price:40,desc:"Captures tiny fragments of sweet dreams.",rarity:"Rare"},
+ {ids:["honey","feather"],name:"Phoenix Nectar",emoji:"🔥",color:"#ffad66",price:48,desc:"Warm golden magic with a fiery sparkle.",rarity:"Epic"},
+ {ids:["berry","shell"],name:"Ocean Kiss",emoji:"🧜‍♀️",color:"#78dedb",price:35,desc:"A little bottle of mermaid ocean magic.",rarity:"Rare"},
+ {ids:["moon","crystal","dust"],name:"Lunar Stardust",emoji:"🌠",color:"#c4a5ff",price:58,desc:"Pure moonlight crystallised in a bottle.",rarity:"Epic"},
+ {ids:["leaf","honey","mushroom"],name:"Enchanted Garden",emoji:"🌼",color:"#b3e987",price:42,desc:"A tiny spring garden in potion form.",rarity:"Rare"},
+ {ids:["feather","crystal","berry"],name:"Dragon's Fortune",emoji:"🐉",color:"#ff8eac",price:70,desc:"An ancient and powerful magical blend.",rarity:"Legendary"},
+ {ids:["moon","shell"],name:"Moon Tide",emoji:"🌊",color:"#85c8ff",price:30,desc:"A quiet tide blessed by moonlight.",rarity:"Common"},
+ {ids:["honey","dust"],name:"Golden Wish",emoji:"⭐",color:"#ffda79",price:36,desc:"A glowing wish sealed in a tiny bottle.",rarity:"Rare"},
+ {ids:["crystal","leaf"],name:"Crystal Bloom",emoji:"🌸",color:"#91f0da",price:34,desc:"A flower that shines from within.",rarity:"Common"},
+ {ids:["mushroom","berry","dust"],name:"Mystic Dream",emoji:"🦄",color:"#f29ee9",price:55,desc:"A dreamy blend of wonder and stardust.",rarity:"Epic"}
+];
+
+const initialInventory = {moon:3,berry:3,mushroom:3,crystal:2,leaf:4,honey:2,feather:1,dust:2,shell:2};
+const defaultState = () => ({
+ coins:60,xp:0,level:1,inventory:{...initialInventory},
+ discovered:[],crafted:0,sold:0,selected:[],sound:false,questsDone:[],
+ active:null,kept:[],date:new Date().toISOString().slice(0,10)
+});
+let state;
+try {
+ const saved=JSON.parse(localStorage.getItem("potionCraftingSave"));
+ state=saved && saved.inventory && saved.date===new Date().toISOString().slice(0,10)
+  ? {...defaultState(),...saved}
+  : saved && saved.inventory ? {...defaultState(),...saved,questsDone:[],date:new Date().toISOString().slice(0,10)}
+  : defaultState();
+} catch(e){state=defaultState()}
+
+let busy=false, noticeTimer;
+const $=id=>document.getElementById(id);
+function save(){
+ try{localStorage.setItem("potionCraftingSave",JSON.stringify(state))}
+ catch(e){toast("Save unavailable in this browser.")}
+}
+function toast(message){
+ const el=$("notice");el.textContent=message;el.classList.add("show");
+ clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>el.classList.remove("show"),2300);
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderInventory(){
+ $("ingredients").innerHTML=ITEMS.map(i=>{
+ const count=state.inventory[i.id]||0,chosen=state.selected.includes(i.id);
+ return `<button class="ingredient ${chosen?"selected":""}" ${count<=0?"disabled":""}
+ onclick="selectItem('${i.id}')" aria-pressed="${chosen}">
+ ${chosen?'<span class="tick">✓</span>':""}
+ <span class="emoji">${i.emoji}</span><b>${i.name}</b><small>Owned: ${count}</small>
+ </button>`;
+ }).join("");
+ $("selectedCount").textContent=state.selected.length+" selected";
+ $("brewBtn").disabled=busy||state.selected.length<2||state.selected.length>3;
+}
+function selectItem(id){
+ if(busy)return;
+ if(state.selected.includes(id))state.selected=state.selected.filter(x=>x!==id);
+ else if(state.selected.length>=3)toast("Choose up to 3 ingredients!");
+ else if((state.inventory[id]||0)<=0)toast("You're out of that ingredient!");
+ else state.selected.push(id);
+ renderInventory();save();
+}
+function clearSelection(){if(busy)return;state.selected=[];renderInventory();save()}
+function keyFor(ids){return [...ids].sort().join("+")}
+function findRecipe(ids){return RECIPES.find(r=>keyFor(r.ids)===keyFor(ids))}
+function brew(){
+ if(busy||state.selected.length<2||state.selected.length>3)return;
+ for(const id of state.selected){
+  if((state.inventory[id]||0)<1){toast("Not enough ingredients!");return}
+ }
+ const chosen=[...state.selected],recipe=findRecipe(chosen);
+ chosen.forEach(id=>state.inventory[id]--);
+ state.selected=[];busy=true;
+ $("sellBtn").disabled=true;$("keepBtn").disabled=true;
+ $("result").innerHTML='<div class="result-icon">🫧</div><h3>Brewing magic...</h3><p>The cauldron is mixing your ingredients!</p>';
+ $("cauldron").classList.add("brewing");
+ renderInventory();save();
+ setTimeout(()=>{
+  $("cauldron").classList.remove("brewing");busy=false;
+  state.crafted++;
+  if(recipe){
+   state.active={...recipe};
+   const fresh=!state.discovered.includes(recipe.name);
+   if(fresh){state.discovered.push(recipe.name);state.xp+=20}
+   state.xp+=10;
+   state.coins+=5;
+   $("liquid").style.setProperty("--liquid",recipe.color);
+   $("result").innerHTML=`<div class="result-icon">${recipe.emoji}</div>
+    <h3>${recipe.name} ${fresh?"✨ NEW!":""}</h3>
+    <p>${recipe.desc}</p><span class="badge unlocked">${recipe.rarity} · Value 🪙${recipe.price}</span>
+    <p>🧪 Potion crafted! +10 XP${fresh?" · +20 discovery XP":""} · +5 bonus coins</p>`;
+   toast(fresh?"New recipe discovered! 📖":"Potion successfully brewed! 🧪");
+   checkQuest("brew");
+  }else{
+   state.active={name:"Mysterious Slime",emoji:"🫧",color:"#a9e5cf",price:8,
+    desc:"An unusual bubbling mixture. Not every experiment creates a known recipe!",rarity:"Uncommon"};
+   state.xp+=5;
+   $("liquid").style.setProperty("--liquid","#a9e5cf");
+   $("result").innerHTML=`<div class="result-icon">🫧</div><h3>Mysterious Slime!</h3>
+    <p>Your mix created an unknown substance. It can still be sold for 8 coins.</p>
+    <p>+5 XP · Keep experimenting to discover recipes!</p>`;
+   toast("Experiment complete! +5 XP");
+  }
+  $("sellBtn").disabled=false;$("keepBtn").disabled=false;
+  awardProgress();renderAll();save();
+ },1400);
+}
+function sellPotion(){
+ if(!state.active||busy)return;
+ state.coins+=state.active.price;state.sold++;state.active=null;
+ $("result").innerHTML='<div class="result-icon">🪙</div><h3>Sold successfully!</h3><p>Your potion found a new owner. Keep crafting!</p>';
+ $("sellBtn").disabled=true;$("keepBtn").disabled=true;
+ checkQuest("sell");toast("Potion sold! Coins added 🪙");awardProgress();renderAll();save();
+}
+function keepPotion(){
+ if(!state.active||busy)return;
+ if(state.kept.includes(state.active.name)){toast("You already kept this potion!");return}
+ state.kept.push(state.active.name);
+ state.xp+=5;state.active=null;
+ $("result").innerHTML='<div class="result-icon">💜</div><h3>Added to Collection!</h3><p>Your magical potion is safely in your collection.</p>';
+ $("sellBtn").disabled=true;$("keepBtn").disabled=true;
+ toast("Potion collected! +5 XP");awardProgress();renderAll();save();
+}
+function buy(id){
+ const item=ITEMS.find(i=>i.id===id);
+ if(state.coins<item.cost){toast("Not enough coins! Sell a potion first.");return}
+ state.coins-=item.cost;state.inventory[id]=(state.inventory[id]||0)+1;
+ toast(item.emoji+" "+item.name+" purchased!");
+ renderAll();save();
+}
+function awardProgress(){
+ let changed=false;
+ while(state.xp>=state.level*50){state.xp-=state.level*50;state.level++;changed=true;toast("Level up! Welcome to level "+state.level+" ⭐")}
+ if(changed)state.coins+=10;
+}
+function checkQuest(type){
+ const today=state.date;
+ const definitions=[
+  {id:"brew",label:"First Experiment",desc:"Brew 1 potion",reward:10,goal:1,metric:()=>state.crafted},
+  {id:"discover",label:"Curious Alchemist",desc:"Discover 2 recipes",reward:20,goal:2,metric:()=>state.discovered.length},
+  {id:"sell",label:"Little Merchant",desc:"Sell 1 potion",reward:15,goal:1,metric:()=>state.sold}
+ ];
+ definitions.forEach(q=>{
+  if(state.questsDone.includes(q.id))return;
+  if(q.id===type&&q.metric()>=q.goal){
+   state.questsDone.push(q.id);state.coins+=q.reward;state.xp+=10;
+   toast("Quest complete: "+q.label+"! +"+q.reward+" coins");
+  }
+ });
+ // Recipe discoveries can complete their own challenge.
+ const q=definitions.find(q=>q.id==="discover");
+ if(q&&!state.questsDone.includes(q.id)&&q.metric()>=q.goal){
+  state.questsDone.push(q.id);state.coins+=q.reward;state.xp+=10;
+ }
+}
+function renderRecipes(){
+ $("recipeCount").textContent=state.discovered.length+" / "+RECIPES.length+" discovered";
+ $("recipes").innerHTML=RECIPES.map(r=>{
+ const known=state.discovered.includes(r.name);
+ return `<div class="recipe ${known?"":"locked"}">
+ <span class="emoji">${known?r.emoji:"🔒"}</span><div>
+ <b>${known?esc(r.name):"Unknown Recipe"}</b>
+ <small>${known?esc(r.rarity+" · "+r.price+" coins"):"Experiment to unlock"}</small>
+ </div></div>`;
+ }).join("");
+}
+function renderShop(){
+ $("shop").innerHTML=ITEMS.map(i=>`<div class="shop-item">
+ <span class="item-icon">${i.emoji}</span><div class="item-info">
+ <b>${i.name}</b><small>🪙 ${i.cost} · Owned: ${state.inventory[i.id]||0}</small>
+ </div><button class="btn secondary" onclick="buy('${i.id}')" ${state.coins<i.cost?"disabled":""}>Buy</button>
+ </div>`).join("");
+}
+function renderQuests(){
+ const qs=[
+ {id:"brew",name:"First Experiment",desc:"Brew your first potion",goal:1,cur:state.crafted,reward:10},
+ {id:"discover",name:"Curious Alchemist",desc:"Discover 2 recipes",goal:2,cur:state.discovered.length,reward:20},
+ {id:"sell",name:"Little Merchant",desc:"Sell your first potion",goal:1,cur:state.sold,reward:15}
+ ];
+ $("quests").innerHTML=qs.map(q=>{
+ const done=state.questsDone.includes(q.id),progress=Math.min(q.cur,q.goal);
+ return `<div class="quest"><span class="item-icon">${done?"🏆":"📜"}</span>
+ <div class="item-info"><b>${q.name} ${done?"✓":""}</b>
+ <small>${q.desc} · ${progress}/${q.goal} · +${q.reward} coins</small></div>
+ ${done?'<span class="badge unlocked">Done</span>':""}</div>`;
+ }).join("");
+}
+function renderProgress(){
+ $("coins").textContent=state.coins;$("level").textContent=state.level;
+ $("xp").textContent=state.xp;
+ $("levelLabel").textContent=state.level>=10?"Master Alchemist":state.level>=5?"Expert Alchemist":"Apprentice";
+ $("progressLabel").textContent="Level "+state.level;
+ $("progressXP").textContent=state.xp+" / "+(state.level*50)+" XP";
+ $("xpBar").style.width=Math.min(100,state.xp/(state.level*50)*100)+"%";
+ const list=[
+  {name:"First Brew",ok:state.crafted>=1,emoji:"🧪"},
+  {name:"Recipe Finder",ok:state.discovered.length>=3,emoji:"📖"},
+  {name:"Potion Seller",ok:state.sold>=3,emoji:"🪙"},
+  {name:"Level 5",ok:state.level>=5,emoji:"🌟"}
+ ];
+ $("achievements").innerHTML=list.map(a=>`<span class="badge ${a.ok?"unlocked":""}">${a.ok?"🏆":a.emoji} ${a.name}</span>`).join("");
+ $("soundBtn").textContent=state.sound?"🔊 Sound: On":"🔇 Sound: Off";
+}
+function renderAll(){
+ renderInventory();renderRecipes();renderShop();renderQuests();renderProgress();
+}
+function toggleSound(){
+ // No external audio is loaded; this setting is reserved for future audio.
+ state.sound=!state.sound;renderProgress();save();
+ toast(state.sound?"Sound setting enabled.":"Sound muted.");
+}
+function resetGame(){
+ if(!confirm("Reset all game progress and start again?"))return;
+ try{localStorage.removeItem("potionCraftingSave")}catch(e){}
+ state=defaultState();busy=false;
+ $("result").innerHTML='<div class="result-icon">✨</div><h3>Ready to Brew?</h3><p>Select your ingredients and discover your first potion!</p>';
+ $("liquid").style.setProperty("--liquid","#b99aff");
+ $("sellBtn").disabled=true;$("keepBtn").disabled=true;
+ renderAll();save();toast("A new magical journey begins!");
+}
+renderAll();
+</script>
+</body>
+</html>
